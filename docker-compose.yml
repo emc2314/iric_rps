@@ -1,0 +1,17 @@
+version: "3"
+services:
+  iric_rps:
+    restart: always
+    build: .
+    ports:
+      - "10008:80"
+    secrets:
+      - rps_secret_key
+  redis:
+    image: redis
+    restart: always
+    expose:
+      - "6379"
+secrets:
+   rps_secret_key:
+     file: secret_key.bin
