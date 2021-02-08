@@ -23,7 +23,7 @@ def login_required(f):
             return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
-    
+
 def room_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -57,7 +57,7 @@ def room_getplayer(uid, rid):
         if int(r.hmget(rpid,'uid')[0]) == uid:
             return rpid
     return None
-    
+
 def room_addplayer(uid, rid):
     rpid = int(str(rid)+str(session['uid']))
     rp = {'uid': session['uid'], 'username': session['username'], 'msg': json.dumps([''])}
@@ -115,10 +115,9 @@ def play(rid):
 @room_required
 def leave(rid):
     u = room_getplayer(session['uid'], rid)
-    if not u:
-        return 'You are not in that room'
-    r.delete(u)
-    r.lrem(rid,0,u)
+    if u:
+        r.delete(u)
+        r.lrem(rid,0,u)
     return redirect('/')
 
 @app.route('/logout', methods=['GET'])
