@@ -9,7 +9,10 @@ import redis
 import json
 
 app = Flask(__name__)
-app.secret_key = open("/run/secrets/rps_secret_key","rb").read()
+if __name__ == '__main__':
+    app.secret_key = b"hyhvjhg546c"
+else:
+    app.secret_key = open("/run/secrets/rps_secret_key","rb").read()
 
 r = redis.StrictRedis(host='redis', port=6379, db=0)
 
