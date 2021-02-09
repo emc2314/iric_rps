@@ -82,7 +82,7 @@ class Room:
         r.lrem(self.rid,0,player.rpid)
         if len(self) == 1:
             r.delete(self[0].rpid)
-            r.lrem(self.rid,0,self[0].rpid)
+            r.delete(self.rid)
 
 
 def login_required(f):
