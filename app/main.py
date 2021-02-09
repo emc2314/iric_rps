@@ -75,12 +75,11 @@ def create():
 @login_required
 @room_required
 def play(rid):
-    link = url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode())
+    linkid = base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()
     u = room_getplayer(session['uid'], rid)
     if not u:
         room_addplayer(session['uid'], rid)
-        return redirect(link)
-    s = '<p><a href="' + link + '"> Share this link to your partner </a></p>'
+        return redirect(url_for('play', rid=linkid))
     ready = True
     for x in r.lrange(rid,0,-1):
         if json.loads(r.hmget(x, 'msg')[0])[-1] == '':
@@ -109,6 +108,7 @@ def play(rid):
             s += '\t'
         s += "</p>"
     return s + '<form action="" method="post">msg: <input name="msg">' + '<p><a href="' + url_for('leave', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()) + '"> leave room </a></p>'
+    #return render_template('play.html', linkid=linkid, )
 
 @app.route('/leave/<rid>', methods=['GET'])
 @login_required
