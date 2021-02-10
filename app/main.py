@@ -77,6 +77,7 @@ class Room:
         player['username'] = username
         player.actions = ['']
         r.rpush(self.rid, player.rpid)
+        return player
 
     def remove_player(self, player):
         r.delete(player.rpid)
@@ -181,7 +182,30 @@ def create():
     room = Room.create(rid)
     room[0]['skills'] = skl
     room[0]['characters'] = charl
-    return redirect(url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
+    return redirect(url_for('join', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
+
+
+@app.route('/join/<rid>', methods=['GET', 'POST'])
+@login_required
+@room_required
+def join(rid):
+    linkid = base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()
+    room = Room(rid)
+    player = room.get_player(session['uid'])
+    if player:
+        return redirect(url_for('play', rid=linkid))
+    chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
+    if request.method == 'GET':
+        return render_template('join.html', chardict=chardict)
+    else:
+        character = request.form['character']
+        if character not in chardict:
+            return 'Character not found\n' + str(chardict) + '\n' + str(skdict)
+        player = room.new_player(session['uid'], session['username'])
+        player['character'] = character
+
+
+    return redirect(url_for('play', rid=linkid))
 
 @app.route('/play/<rid>', methods=['GET', 'POST'])
 @login_required
@@ -191,8 +215,7 @@ def play(rid):
     room = Room(rid)
     player = room.get_player(session['uid'])
     if not player:
-        room.new_player(session['uid'], session['username'])
-        return redirect(url_for('play', rid=linkid))
+        return redirect(url_for('join', rid=linkid))
     ready = True
     for x in room[1:]:
         if x.actions[-1] == '':

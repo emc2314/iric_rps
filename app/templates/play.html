@@ -2,20 +2,15 @@
 <html lang="zh">
     <head>
         <meta charset="UTF-8">
-        <script src="static/jquery.min.js"></script>
-        <script src="static/bootstrap/js/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+        <script src="/static/jquery.min.js"></script>
+        <script src="/static/bootstrap/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
         <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
         <title>Iric's Rock Paper Scissors</title>
     </head>
     <body class="text-center">
         <form class="form-getflag" action="result" method="GET">
             <div id="app">
-                <h1>{{ "SHUFFLE VAULT" | shuffle(shuffle_mode=shuffle_mode) }}</h1>
-                <img src="{{ "captcha_shuffled.bmp" if shuffle_mode else "captcha.bmp" }}">
-                <div class="alert alert-info" role="alert">
-                    {{ "通知：为了网站更加人性化，近期我们对交互方式进行了改进，没有键盘的用户也能准确输入验证码。" | shuffle(shuffle_mode=shuffle_mode) }}
-                </div>
                 {% for c in alphabet %}
                 <div class="form-group row">
                     <label class="col-4"><code>{{ (c + " 的个数") | shuffle(shuffle_mode=shuffle_mode) }}</code></label>
