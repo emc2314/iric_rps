@@ -6,6 +6,7 @@ from functools import wraps
 import base58
 import redis
 import json
+import random
 
 app = Flask(__name__)
 if __name__ == '__main__':
@@ -84,6 +85,44 @@ class Room:
             r.delete(self[0].rpid)
             r.delete(self.rid)
 
+class Skill:
+    def __init__(self, sk):
+        self.id = sk['num']
+        self.name = sk['name']
+        self.type = sk['target']
+        self.dices = sk['random']
+
+    def roll(self):
+        result = []
+        for d in self.dices:
+            a, b = d.split('d')
+            x = 0
+            for i in range(int(a)):
+                x += random.randint(1,int(b))
+            result.append(x)
+        return result
+
+class Character:
+    def __init__(self, char, skdict):
+        self.id = char['num']
+        self.name = char['name']
+        self.skills = []
+        for x in char['skill']:
+            self.skills.append(skdict[x])
+
+def parse_charsk(charl, skl):
+    charl = json.loads(charl)
+    skl = json.loads(skl)
+    skdict = {}
+    for sk in skl:
+        sk = Skill(sk)
+        skdict[sk.id] = sk
+    chardict = {}
+    for character in charl:
+        character = Character(character, skdict)
+        chardict[character.id] = character
+    return chardict, skdict
+
 
 def login_required(f):
     @wraps(f)
@@ -119,13 +158,29 @@ def login():
 @app.route('/', methods=['GET'])
 @login_required
 def index():
-    return '<p>Iric\'s Rock Paper Scissors</p><a href="' + url_for('create') + '"> Create room </a><p><a href="' + url_for('logout') + '"> Logout </p>'
+    return render_template('index.html')
 
-@app.route('/create', methods=['GET'])
+@app.route('/create', methods=['GET', 'POST'])
 @login_required
 def create():
+    if request.method == 'POST':
+        skl = request.form['skill_list'].strip()
+        charl = request.form['character_list'].strip()
+        try:
+            parse_charsk(charl, skl)
+        except:
+            return "Error load rule lists"
+        r.set('skills', skl)
+        r.set('characters', charl)
+    else:
+        skl = r.get('skills')
+        charl = r.get('characters')
+        if not (skl and charl):
+            return 'Set default rules first'
     rid = int.from_bytes(os.urandom(8), "big")
     room = Room.create(rid)
+    room[0]['skills'] = skl
+    room[0]['characters'] = charl
     return redirect(url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
 
 @app.route('/play/<rid>', methods=['GET', 'POST'])

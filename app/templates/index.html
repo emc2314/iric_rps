@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+        <meta charset="UTF-8">
+        <script src="static/jquery.min.js"></script>
+        <script src="static/bootstrap/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+        <title>Iric's Rock Paper Scissors</title>
+        <script> $(function () {
+          $('.toggle-check').change(function () {
+             $('#create-post').toggle(this.checked);
+             $('#create-get').toggle(!this.checked);
+          }).change();
+        });
+        </script>
+    </head>
+    <body class="text-center">
+        <div class="form-check">
+          <input class="form-check-input toggle-check" type="checkbox" value="" id="flexCheckDefault">
+          <label class="form-check-label" for="flexCheckDefault">
+            Advanced Options
+          </label>
+        </div>
+        <form id="create-post" class="" action="create" method="POST">
+          <div class="form-group">
+            <label for="skill_list">Skill List</label>
+            <textarea rows="10" style="height:100%;" type="text" class="form-control" id="skill_list" name="skill_list"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="character_list">Character List</label>
+            <textarea rows="10" style="height:100%;" type="text" class="form-control" id="character_list" name="character_list"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Set rules and create room</button>
+        </form>
+        <form id="create-get" class="" action="create" method="GET">
+          <button type="submit" class="btn btn-primary">Create room</button>
+        </form>
+    </body>
+</html>
