@@ -9,29 +9,36 @@
         <title>Iric's Rock Paper Scissors</title>
     </head>
     <body class="text-center">
-        <form class="form-getflag" action="result" method="GET">
-            <div id="app">
-                {% for c in alphabet %}
-                <div class="form-group row">
-                    <label class="col-4"><code>{{ (c + " 的个数") | shuffle(shuffle_mode=shuffle_mode) }}</code></label>
-                    <div class="col-8">
-                      {% for i in range(17) | shuffle(shuffle_mode=shuffle_mode): %}
-                      <div class="custom-control custom-radio custom-control-inline">
-                        <input name="r_{{c}}" id="r_{{c}}_{{i}}" type="radio" class="custom-control-input" value="{{ i }}">
-                        <label for="r_{{c}}_{{i}}" class="custom-control-label">{{ i }}</label>
-                      </div>
-                      {% endfor %}
-                    </div>
-                </div>
-                {% endfor %}
-
-                <input type="submit" class="btn btn-lg btn-primary btn-block" value="{{ "提交验证" | shuffle(shuffle_mode=shuffle_mode) }}" />
-                {% if shuffle_mode: %}
-                    <a class="btn btn-lg btn-danger btn-block" href="/">{{ "退出 SHUFFLE 翻转" | shuffle(shuffle_mode=shuffle_mode) }}</a>
-                {% else: %}
-                    <a class="btn btn-lg btn-danger btn-block" href="/shuffle">{{ "开启 SHUFFLE 翻转" | shuffle(shuffle_mode=shuffle_mode) }}</a>
-                {% endif %}
-            </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              {% for pl in players %}
+                <th scope="col">{{ pl['username'].decode() }}({{ chardict[pl.character.decode()].name }})</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(rounds) %}
+            <tr>
+              <th scope="row">{{ i }}</th>
+              {% for pl in players %}
+              <td>{{ logs[i][pl.rpid].name }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <form action="" method="POST">
+          <div class="form-group">
+            <label for="action">Action:</label>
+            <select class="form-control" id="action" name="action">
+              {% for sk in chardict[player['character'].decode()].skills %}
+                <option value="{{ sk.id }}">{{ sk.name }}({{ sk.type }})({{ sk.dices }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">Act</button>
         </form>
     </body>
 </html>

@@ -93,6 +93,14 @@ class Skill:
         self.type = sk['target']
         self.dices = sk['random']
 
+    def __repr__(self):
+        j = {}
+        j['num'] = self.id
+        j['name'] = self.name
+        j['target'] = self.type
+        j['random'] = self.dices
+        return json.dumps(j)
+
     def roll(self):
         result = []
         for d in self.dices:
@@ -110,6 +118,13 @@ class Character:
         self.skills = []
         for x in char['skill']:
             self.skills.append(skdict[x])
+
+    def __repr__(self):
+        j = {}
+        j['num'] = self.id
+        j['name'] = self.name
+        j['skill'] = [repr(x) for x in self.skills]
+        return json.dumps(j)
 
 def parse_charsk(charl, skl):
     charl = json.loads(charl)
@@ -226,25 +241,25 @@ def play(rid):
             x.actions += ['']
     if request.method == 'POST':
         actions = player.actions
-        actions[-1] = request.form['actions']
+        actions[-1] = request.form['action']
         player.actions = actions
         return redirect(url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
 
-    l = len(room[1].actions)
+    rounds = len(room[1].actions)
     for x in room[1:]:
-        if len(x.actions) < l:
-            l = len(x.actions)
-    s = ''
-    for i in range(l,0,-1):
-        s += f"<p> Round {l-i}: "
+        if len(x.actions) < rounds:
+            rounds = len(x.actions)
+    logs = []
+    chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
+    for i in range(rounds,0,-1):
+        s = {}
         for x in room[1:]:
-            s += f"{x['username'].decode()}: "
             if int(x['uid']) == session['uid'] or i > 1:
-                s += x.actions[-i] # TODO: render safely
-            s += '\t'
-        s += "</p>"
-    return s + '<form action="" method="post">actions: <input name="actions">' + '<p><a href="' + url_for('leave', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()) + '"> leave room </a></p>'
-    #return render_template('play.html', linkid=linkid, )
+                s[x.rpid] = skdict[x.actions[-i]] # TODO: render safely
+            else:
+                s[x.rpid] = ''
+        logs.append(s)
+    return render_template('play.html', linkid=linkid, chardict=chardict, player=player, players=list(room[1:]), rounds=rounds, logs=logs)
 
 @app.route('/leave/<rid>', methods=['GET'])
 @login_required

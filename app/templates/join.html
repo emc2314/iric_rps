@@ -18,6 +18,7 @@
                 {% for c in chardict %}
                   <option value="{{ chardict[c].id }}">{{ chardict[c].name }}</option>
                 {% endfor %}
+                  <option value="debug">debug</option>
               </select>
             </div>
             <button type="submit" class="btn btn-primary">Join room</button>
