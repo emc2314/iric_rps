@@ -23,7 +23,7 @@
             <tr>
               <th scope="row">{{ i }}</th>
               {% for pl in players %}
-              <td>{{ logs[i][pl.rpid].name }}</td>
+              <td>{{ logs[i][pl.rpid] }}</td>
               {% endfor %}
             </tr>
             {% endfor %}
