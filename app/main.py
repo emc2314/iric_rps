@@ -236,8 +236,8 @@ def logs(rid):
     for x in room[1:]:
         if len(x.actions) < rounds:
             rounds = len(x.actions)
-    logs = []
     chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
+    logs = []
     for i in range(rounds,0,-1):
         s = {}
         for x in room[1:]:
@@ -250,7 +250,43 @@ def logs(rid):
             else:
                 s[x.rpid] = ''
         logs.append(s)
-    return render_template('logs.html', linkid=linkid, chardict=chardict, players=list(room[1:]), rounds=rounds, logs=logs)
+
+    uid = ''
+    if rounds >= 2:
+        if player.actions[-2]['roll'] == '':
+            if len(skdict[player.actions[-2]['skill']].dices):
+                uid = str(session['uid']).encode()
+
+    return render_template('logs.html', linkid=linkid, chardict=chardict, players=list(room[1:]), rounds=rounds, logs=logs, uid=uid)
+
+@app.route('/roll/<rid>', methods=['GET'])
+@login_required
+@room_required
+def roll(rid):
+    linkid = base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()
+    room = Room(rid)
+    player = room.get_player(session['uid'])
+    if not player:
+        return redirect(url_for('join', rid=linkid))
+
+    rounds = len(room[1].actions)
+    for x in room[1:]:
+        if len(x.actions) < rounds:
+            rounds = len(x.actions)
+    if rounds < 2:
+        return "Nothing to roll"
+    chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
+    for x in room[1:]:
+        if int(x['uid']) == session['uid']:
+            skill = skdict[x.actions[-2]['skill']]
+            actions = x.actions
+            if actions[-2]['roll'] == '':
+                actions[-2]['roll'] = " [" + ", ".join(map(lambda x: str(x[0])+'/'+x[1], zip(skill.roll(), skill.dices))) + "]"
+                x.actions = actions
+            break
+
+    return ''
+
 
 @app.route('/play/<rid>', methods=['GET', 'POST'])
 @login_required
@@ -262,7 +298,6 @@ def play(rid):
     if not player:
         return redirect(url_for('join', rid=linkid))
 
-    chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
     if request.method == 'POST':
         actions = player.actions
         actions[-1] = {'skill': request.form['action'], 'roll':''}
@@ -277,6 +312,7 @@ def play(rid):
                 x.actions += [{'skill':'','roll':''}]
         return redirect(url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
 
+    chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
     return render_template('play.html', linkid=linkid, chardict=chardict, player=player)
 
 @app.route('/leave/<rid>', methods=['GET'])

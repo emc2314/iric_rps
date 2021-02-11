@@ -11,9 +11,19 @@
     {% for i in range(rounds) %}
     <tr>
       <th scope="row">{{ i }}</th>
-      {% for pl in players %}
-      <td>{{ logs[i][pl.rpid] }}</td>
-      {% endfor %}
+      {% if i == rounds - 2 %}
+        {% for pl in players %}
+          {% if pl['uid'] == uid %}
+            <td><button type="submit" class="btn btn-primary" id="roll" onclick="roll()">{{ logs[i][pl.rpid] }}</button></td>
+          {% else %}
+            <td>{{ logs[i][pl.rpid] }}</td>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        {% for pl in players %}
+        <td>{{ logs[i][pl.rpid] }}</td>
+        {% endfor %}
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>

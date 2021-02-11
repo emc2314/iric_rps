@@ -19,6 +19,12 @@
           doRefresh();
         });
         </script>
+        <script>
+        function roll() {
+          $.get("/roll/{{ linkid }}", function(data,result){});
+          console.log("Roll");
+        }
+        </script>
     </head>
     <body class="text-center">
         <div id='logs'>
