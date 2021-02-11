@@ -22,7 +22,7 @@
         <script>
         function roll() {
           $.get("/roll/{{ linkid }}", function(data,result){});
-          doRefresh();
+          $("#logs").load("/logs/{{ linkid }}");
         }
         </script>
     </head>
@@ -62,7 +62,7 @@
                     action: term
                 });
 
-                doRefresh();
+                $("#logs").load("/logs/{{ linkid }}");
             });
         </script>
     </body>
