@@ -75,7 +75,7 @@ class Room:
     def new_player(self, uid, username):
         player = RoomPlayer.from_uid(uid, self.rid)
         player['username'] = username
-        player.actions = ['']
+        player.actions = [{'skill':'','roll':''}]
         r.rpush(self.rid, player.rpid)
         return player
 
@@ -241,9 +241,10 @@ def logs(rid):
     for i in range(rounds,0,-1):
         s = {}
         for x in room[1:]:
-            if x.actions[-i] != '':
+            if x.actions[-i]['skill'] != '':
                 if int(x['uid']) == session['uid'] or i > 1:
-                    s[x.rpid] = skdict[x.actions[-i]].name
+                    action = x.actions[-i]
+                    s[x.rpid] = skdict[action['skill']].name + action['roll']
                 else:
                     s[x.rpid] = 'READY'
             else:
@@ -261,21 +262,21 @@ def play(rid):
     if not player:
         return redirect(url_for('join', rid=linkid))
 
+    chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
     if request.method == 'POST':
         actions = player.actions
-        actions[-1] = request.form['action']
+        actions[-1] = {'skill': request.form['action'], 'roll':''}
         player.actions = actions
         ready = True
         for x in room[1:]:
-            if x.actions[-1] == '':
+            if x.actions[-1]['skill'] == '':
                 ready = False
                 break
         if ready:
             for x in room[1:]:
-                x.actions += ['']
+                x.actions += [{'skill':'','roll':''}]
         return redirect(url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
 
-    chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
     return render_template('play.html', linkid=linkid, chardict=chardict, player=player)
 
 @app.route('/leave/<rid>', methods=['GET'])
