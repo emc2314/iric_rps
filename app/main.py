@@ -254,8 +254,11 @@ def play(rid):
     for i in range(rounds,0,-1):
         s = {}
         for x in room[1:]:
-            if (int(x['uid']) == session['uid'] or i > 1) and x.actions[-i] != '':
-                s[x.rpid] = skdict[x.actions[-i]].name
+            if x.actions[-i] != '':
+                if int(x['uid']) == session['uid'] or i > 1:
+                    s[x.rpid] = skdict[x.actions[-i]].name
+                else:
+                    s[x.rpid] = 'READY'
             else:
                 s[x.rpid] = ''
         logs.append(s)
