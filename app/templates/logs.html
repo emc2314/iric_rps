@@ -1,0 +1,20 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      {% for pl in players %}
+        <th scope="col">{{ pl['username'].decode() }}({{ chardict[pl.character.decode()].name }})</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for i in range(rounds) %}
+    <tr>
+      <th scope="row">{{ i }}</th>
+      {% for pl in players %}
+      <td>{{ logs[i][pl.rpid] }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

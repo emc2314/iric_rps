@@ -7,35 +7,36 @@
         <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
         <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
         <title>Iric's Rock Paper Scissors</title>
+        <script>
+        function doRefresh() {
+          $("#logs").load("/logs/{{ linkid }}");
+          setTimeout(function() {
+            doRefresh();
+          }, 2000);
+        }
+
+        $(document).ready(function () {
+          doRefresh();
+        });
+        </script>
     </head>
     <body class="text-center">
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              {% for pl in players %}
-                <th scope="col">{{ pl['username'].decode() }}({{ chardict[pl.character.decode()].name }})</th>
-              {% endfor %}
-            </tr>
-          </thead>
-          <tbody>
-            {% for i in range(rounds) %}
-            <tr>
-              <th scope="row">{{ i }}</th>
-              {% for pl in players %}
-              <td>{{ logs[i][pl.rpid] }}</td>
-              {% endfor %}
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div id='logs'>
+        </div>
         <form action="" method="POST">
           <div class="form-group">
             <label for="action">Action:</label>
             <select class="form-control" id="action" name="action">
-              {% for sk in chardict[player['character'].decode()].skills %}
-                <option value="{{ sk.id }}">{{ sk.name }}({{ sk.type }})({{ sk.dices }})</option>
+              <optgroup label="LOCK">
+              {% for sk in chardict[player['character'].decode()].skills if sk.type == 'lock' %}
+                <option value="{{ sk.id }}">{{ sk.name }}({{ sk.dices }})</option>
               {% endfor %}
+              </optgroup>
+              <optgroup label="UNLOCK">
+              {% for sk in chardict[player['character'].decode()].skills if sk.type == 'unlock' %}
+                <option value="{{ sk.id }}">{{ sk.name }}({{ sk.dices }})</option>
+              {% endfor %}
+              </optgroup>
             </select>
           </div>
           <button type="submit" class="btn btn-primary">Act</button>

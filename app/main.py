@@ -222,28 +222,15 @@ def join(rid):
 
     return redirect(url_for('play', rid=linkid))
 
-@app.route('/play/<rid>', methods=['GET', 'POST'])
+@app.route('/logs/<rid>', methods=['GET'])
 @login_required
 @room_required
-def play(rid):
+def logs(rid):
     linkid = base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()
     room = Room(rid)
     player = room.get_player(session['uid'])
     if not player:
         return redirect(url_for('join', rid=linkid))
-    ready = True
-    for x in room[1:]:
-        if x.actions[-1] == '':
-            ready = False
-            break
-    if ready:
-        for x in room[1:]:
-            x.actions += ['']
-    if request.method == 'POST':
-        actions = player.actions
-        actions[-1] = request.form['action']
-        player.actions = actions
-        return redirect(url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
 
     rounds = len(room[1].actions)
     for x in room[1:]:
@@ -262,7 +249,34 @@ def play(rid):
             else:
                 s[x.rpid] = ''
         logs.append(s)
-    return render_template('play.html', linkid=linkid, chardict=chardict, player=player, players=list(room[1:]), rounds=rounds, logs=logs)
+    return render_template('logs.html', linkid=linkid, chardict=chardict, players=list(room[1:]), rounds=rounds, logs=logs)
+
+@app.route('/play/<rid>', methods=['GET', 'POST'])
+@login_required
+@room_required
+def play(rid):
+    linkid = base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()
+    room = Room(rid)
+    player = room.get_player(session['uid'])
+    if not player:
+        return redirect(url_for('join', rid=linkid))
+
+    if request.method == 'POST':
+        actions = player.actions
+        actions[-1] = request.form['action']
+        player.actions = actions
+        ready = True
+        for x in room[1:]:
+            if x.actions[-1] == '':
+                ready = False
+                break
+        if ready:
+            for x in room[1:]:
+                x.actions += ['']
+        return redirect(url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
+
+    chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
+    return render_template('play.html', linkid=linkid, chardict=chardict, player=player)
 
 @app.route('/leave/<rid>', methods=['GET'])
 @login_required
