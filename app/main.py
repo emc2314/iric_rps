@@ -310,7 +310,7 @@ def play(rid):
         if ready:
             for x in room[1:]:
                 x.actions += [{'skill':'','roll':''}]
-        return redirect(url_for('play', rid=base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()))
+        return ''
 
     chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
     return render_template('play.html', linkid=linkid, chardict=chardict, player=player)

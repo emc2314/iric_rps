@@ -12,7 +12,7 @@
           $("#logs").load("/logs/{{ linkid }}");
           setTimeout(function() {
             doRefresh();
-          }, 2000);
+          }, 2400);
         }
 
         $(document).ready(function () {
@@ -22,14 +22,14 @@
         <script>
         function roll() {
           $.get("/roll/{{ linkid }}", function(data,result){});
-          console.log("Roll");
+          doRefresh();
         }
         </script>
     </head>
     <body class="text-center">
         <div id='logs'>
         </div>
-        <form action="" method="POST">
+        <form action="" method="POST" id="action-form">
           <div class="form-group">
             <label for="action">Action:</label>
             <select class="form-control" id="action" name="action">
@@ -47,5 +47,23 @@
           </div>
           <button type="submit" class="btn btn-primary">Act</button>
         </form>
+        <script>
+            $("#action-form").submit(function(event) {
+                /* stop form from submitting normally */
+                event.preventDefault();
+
+                /* get some values from elements on the page: */
+                var $form = $(this),
+                    term = $form.find('select[name="action"]').val(),
+                    url = $form.attr('action');
+
+                /* Send the data using post */
+                var posting = $.post(url, {
+                    action: term
+                });
+
+                doRefresh();
+            });
+        </script>
     </body>
 </html>
