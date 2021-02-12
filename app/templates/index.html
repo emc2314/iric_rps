@@ -14,6 +14,14 @@
           }).change();
         });
         </script>
+        <script>
+        function join() {
+          window.location.href = "/join/" + document.getElementById("rid").value;
+        }
+        function observe() {
+          window.location.href = "/play/" + document.getElementById("rid").value;
+        }
+        </script>
     </head>
     <body class="text-center">
         <div class="form-check">
@@ -36,5 +44,18 @@
         <form id="create-get" class="" action="create" method="GET">
           <button type="submit" class="btn btn-primary">Create room</button>
         </form>
+        <h3>Or</h3>
+        <p>Input room ID below:</p>
+        <div class="container">
+          <div class="row justify-content-md-center">
+            <div class="input-group mb-3 col-md-auto">
+              <input type="text" class="form-control" placeholder="Room ID" id="rid" name="rid">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="join()">Join</button>
+                <button class="btn btn-outline-secondary" type="button" onclick="observe()">Observer Only</button>
+              </div>
+            </div>
+          </div>
+        </div>
     </body>
 </html>
