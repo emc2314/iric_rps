@@ -29,41 +29,43 @@
     <body class="text-center">
         <div id='logs'>
         </div>
-        <form action="" method="POST" id="action-form">
-          <div class="form-group">
-            <label for="action">Action:</label>
-            <select class="form-control" id="action" name="action">
-              <optgroup label="LOCK">
-              {% for sk in chardict[player['character'].decode()].skills if sk.type == 'lock' %}
-                <option value="{{ sk.id }}">{{ sk.name }}({{ sk.dices }})</option>
-              {% endfor %}
-              </optgroup>
-              <optgroup label="UNLOCK">
-              {% for sk in chardict[player['character'].decode()].skills if sk.type == 'unlock' %}
-                <option value="{{ sk.id }}">{{ sk.name }}({{ sk.dices }})</option>
-              {% endfor %}
-              </optgroup>
-            </select>
-          </div>
-          <button type="submit" class="btn btn-primary">Act</button>
-        </form>
-        <script>
-            $("#action-form").submit(function(event) {
-                /* stop form from submitting normally */
-                event.preventDefault();
+        {% if player %}
+          <form action="" method="POST" id="action-form">
+            <div class="form-group">
+              <label for="action">Action:</label>
+              <select class="form-control" id="action" name="action">
+                <optgroup label="LOCK">
+                {% for sk in chardict[player['character'].decode()].skills if sk.type == 'lock' %}
+                  <option value="{{ sk.id }}">{{ sk.name }}({{ sk.dices }})</option>
+                {% endfor %}
+                </optgroup>
+                <optgroup label="UNLOCK">
+                {% for sk in chardict[player['character'].decode()].skills if sk.type == 'unlock' %}
+                  <option value="{{ sk.id }}">{{ sk.name }}({{ sk.dices }})</option>
+                {% endfor %}
+                </optgroup>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Act</button>
+          </form>
+          <script>
+              $("#action-form").submit(function(event) {
+                  /* stop form from submitting normally */
+                  event.preventDefault();
 
-                /* get some values from elements on the page: */
-                var $form = $(this),
-                    term = $form.find('select[name="action"]').val(),
-                    url = $form.attr('action');
+                  /* get some values from elements on the page: */
+                  var $form = $(this),
+                      term = $form.find('select[name="action"]').val(),
+                      url = $form.attr('action');
 
-                /* Send the data using post */
-                var posting = $.post(url, {
-                    action: term
-                });
+                  /* Send the data using post */
+                  var posting = $.post(url, {
+                      action: term
+                  });
 
-                $("#logs").load("/logs/{{ linkid }}");
-            });
-        </script>
+                  $("#logs").load("/logs/{{ linkid }}");
+              });
+          </script>
+        {% endif %}
     </body>
 </html>

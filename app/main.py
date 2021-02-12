@@ -229,8 +229,6 @@ def logs(rid):
     linkid = base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()
     room = Room(rid)
     player = room.get_player(session['uid'])
-    if not player:
-        return redirect(url_for('join', rid=linkid))
 
     rounds = len(room[1].actions)
     for x in room[1:]:
@@ -252,10 +250,11 @@ def logs(rid):
         logs.append(s)
 
     uid = ''
-    if rounds >= 2:
-        if player.actions[-2]['roll'] == '':
-            if len(skdict[player.actions[-2]['skill']].dices):
-                uid = str(session['uid']).encode()
+    if player:
+        if rounds >= 2:
+            if player.actions[-2]['roll'] == '':
+                if len(skdict[player.actions[-2]['skill']].dices):
+                    uid = str(session['uid']).encode()
 
     return render_template('logs.html', linkid=linkid, chardict=chardict, players=list(room[1:]), rounds=rounds, logs=logs, uid=uid)
 
@@ -295,22 +294,20 @@ def play(rid):
     linkid = base58.b58encode_check(int.to_bytes(rid,8,"big")).decode()
     room = Room(rid)
     player = room.get_player(session['uid'])
-    if not player:
-        return redirect(url_for('join', rid=linkid))
-
-    if request.method == 'POST':
-        actions = player.actions
-        actions[-1] = {'skill': request.form['action'], 'roll':''}
-        player.actions = actions
-        ready = True
-        for x in room[1:]:
-            if x.actions[-1]['skill'] == '':
-                ready = False
-                break
-        if ready:
+    if player:
+        if request.method == 'POST':
+            actions = player.actions
+            actions[-1] = {'skill': request.form['action'], 'roll':''}
+            player.actions = actions
+            ready = True
             for x in room[1:]:
-                x.actions += [{'skill':'','roll':''}]
-        return ''
+                if x.actions[-1]['skill'] == '':
+                    ready = False
+                    break
+            if ready:
+                for x in room[1:]:
+                    x.actions += [{'skill':'','roll':''}]
+            return ''
 
     chardict, skdict = parse_charsk(room[0]['characters'], room[0]['skills'])
     return render_template('play.html', linkid=linkid, chardict=chardict, player=player)
